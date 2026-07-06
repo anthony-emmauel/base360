@@ -22,9 +22,9 @@ function App() {
         <Nav />
         <Hero />
       </div>
-      <ProblemSection />
       <TrustBar />
       <ProductPanel />
+      <ProblemSection />
     </div>
   )
 }
