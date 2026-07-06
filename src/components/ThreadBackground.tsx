@@ -1,33 +1,88 @@
-const LINES = [
-  { d: 'M -40 60 Q 400 220 720 640', delay: '0s', duration: '7s' },
-  { d: 'M 1480 40 Q 1000 240 740 620', delay: '-2s', duration: '8s' },
-  { d: 'M -60 460 Q 300 560 700 660', delay: '-4s', duration: '6.5s' },
-  { d: 'M 1500 500 Q 1150 580 760 670', delay: '-1.5s', duration: '9s' },
-  { d: 'M 200 -40 Q 400 320 720 630', delay: '-3s', duration: '7.5s' },
-  { d: 'M 1260 -40 Q 1050 300 750 630', delay: '-5s', duration: '8.5s' },
-  { d: 'M -40 820 Q 300 720 690 680', delay: '-6s', duration: '6s' },
-  { d: 'M 1500 840 Q 1180 730 770 680', delay: '-2.6s', duration: '10s' },
-]
+import { useEffect, useState } from 'react'
 
-function ThreadBackground() {
+interface ThreadBackgroundProps {
+  containerRef: React.RefObject<HTMLDivElement | null>
+  targetRef: React.RefObject<HTMLDivElement | null>
+}
+
+interface Dimensions {
+  width: number
+  height: number
+  focusX: number
+  focusY: number
+}
+
+// start/control points as fractions of container width/height; endOffset is
+// a small px nudge off the focus point so lines don't all land on one pixel
+const EDGE_POINTS = [
+  { start: [-0.028, 0.067], control: [0.278, 0.244], endOffset: [-10, -10], delay: '0s', duration: '7s' },
+  { start: [1.028, 0.044], control: [0.694, 0.267], endOffset: [10, -30], delay: '-2s', duration: '8s' },
+  { start: [-0.042, 0.511], control: [0.208, 0.622], endOffset: [-30, 10], delay: '-4s', duration: '6.5s' },
+  { start: [1.042, 0.556], control: [0.799, 0.644], endOffset: [30, 20], delay: '-1.5s', duration: '9s' },
+  { start: [0.139, -0.044], control: [0.278, 0.356], endOffset: [-10, -20], delay: '-3s', duration: '7.5s' },
+  { start: [0.875, -0.044], control: [0.729, 0.333], endOffset: [20, -20], delay: '-5s', duration: '8.5s' },
+  { start: [-0.028, 0.911], control: [0.208, 0.8], endOffset: [-40, 30], delay: '-6s', duration: '6s' },
+  { start: [1.042, 0.933], control: [0.819, 0.811], endOffset: [40, 30], delay: '-2.6s', duration: '10s' },
+] as const
+
+function ThreadBackground({ containerRef, targetRef }: ThreadBackgroundProps) {
+  const [dims, setDims] = useState<Dimensions | null>(null)
+
+  useEffect(() => {
+    const measure = () => {
+      const container = containerRef.current
+      const target = targetRef.current
+      if (!container || !target) return
+      const containerRect = container.getBoundingClientRect()
+      const targetRect = target.getBoundingClientRect()
+      setDims({
+        width: containerRect.width,
+        height: containerRect.height,
+        focusX: targetRect.left - containerRect.left + targetRect.width / 2,
+        focusY: targetRect.top - containerRect.top,
+      })
+    }
+
+    measure()
+    const observer = new ResizeObserver(measure)
+    if (containerRef.current) observer.observe(containerRef.current)
+    if (targetRef.current) observer.observe(targetRef.current)
+    window.addEventListener('resize', measure)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [containerRef, targetRef])
+
+  if (!dims) return null
+
+  const { width, height, focusX, focusY } = dims
+
+  const lines = EDGE_POINTS.map((p) => ({
+    d: `M ${p.start[0] * width} ${p.start[1] * height} Q ${p.control[0] * width} ${p.control[1] * height} ${
+      focusX + p.endOffset[0]
+    } ${focusY + p.endOffset[1]}`,
+    delay: p.delay,
+    duration: p.duration,
+  }))
+
   return (
     <svg
       className="pointer-events-none absolute inset-0 h-full w-full"
-      viewBox="0 0 1440 900"
-      preserveAspectRatio="xMidYMid slice"
+      viewBox={`0 0 ${width} ${height}`}
       fill="none"
       aria-hidden="true"
     >
       <defs>
-        {LINES.map((_, i) => (
+        {lines.map((_, i) => (
           <linearGradient
             key={i}
             id={`thread-gradient-${i}`}
             gradientUnits="userSpaceOnUse"
             x1="0"
             y1="0"
-            x2="1440"
-            y2="900"
+            x2={width}
+            y2={height}
           >
             <stop offset="0%" stopColor="#6C47FF" stopOpacity="0" />
             <stop offset="100%" stopColor="#6C47FF" stopOpacity="0.22" />
@@ -43,17 +98,12 @@ function ThreadBackground() {
       </defs>
 
       {/* static base threads, faintly present at rest */}
-      {LINES.map((line, i) => (
-        <path
-          key={`base-${i}`}
-          d={line.d}
-          stroke={`url(#thread-gradient-${i})`}
-          strokeWidth="1"
-        />
+      {lines.map((line, i) => (
+        <path key={`base-${i}`} d={line.d} stroke={`url(#thread-gradient-${i})`} strokeWidth="1" />
       ))}
 
       {/* traveling pulses that give the threads a sense of flow */}
-      {LINES.map((line, i) => (
+      {lines.map((line, i) => (
         <path
           key={`pulse-${i}`}
           className="thread-line"
