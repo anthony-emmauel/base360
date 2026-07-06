@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: #0a0a0a;
+  --color-surface: #131316;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a0a0a0;
+  --color-text-muted: #6b6b6b;
+  --color-accent: #6c47ff;
+  --color-accent-hover: #9c87f5;
+  --color-accent-thread: #6c47ff;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.thread-line {
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .thread-line {
+    animation: thread-flow 8s linear infinite;
+  }
+}
+
+@keyframes thread-flow {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+/* capture-mode: pause the thread animation at a resting frame for HTML-to-Figma capture */
+.capture-mode .thread-line {
+  animation-play-state: paused !important;
+}
