@@ -2,128 +2,141 @@ import { useEffect, useState } from 'react'
 
 interface ThreadBackgroundProps {
   containerRef: React.RefObject<HTMLDivElement | null>
+  targetRef: React.RefObject<HTMLDivElement | null>
 }
 
 interface Dimensions {
   width: number
   height: number
+  focusX: number
+  focusY: number
 }
 
-const LINE_COUNT = 18
-// sweep from left-horizon (185°) up through the top (270°) to right-horizon (355°),
-// covering the dome above the focus point the way rays fan out from it
-const ANGLE_START = 185
-const ANGLE_END = 355
+// scattered anchor points (fractions of container width/height) around the
+// full perimeter — top-left, left-mid, bottom-left, top-right, etc. — not an
+// evenly-spaced fan, so lines read as independent signals, not a grid
+const START_POINTS = [
+  { x: 0.06, y: 0.02 },
+  { x: -0.02, y: 0.32 },
+  { x: -0.03, y: 0.6 },
+  { x: 0.14, y: 0.95 },
+  { x: 0.36, y: -0.03 },
+  { x: 0.66, y: -0.03 },
+  { x: 0.93, y: 0.05 },
+  { x: 1.03, y: 0.3 },
+  { x: 1.02, y: 0.64 },
+  { x: 0.84, y: 0.96 },
+]
 
-function buildLines(width: number, height: number) {
-  const focusX = width / 2
-  // focus sits just below the hero's own bottom edge so the rays read as
-  // converging toward something further down the page, without needing to
-  // literally reach it — this section is clipped, so nothing renders past it
-  const focusY = height * 1.15
-  const radius = Math.sqrt(width * width + height * height) * 0.8
+function seededRandom(seed: number) {
+  const x = Math.sin(seed * 12.9898) * 43758.5453
+  return x - Math.floor(x)
+}
 
-  return Array.from({ length: LINE_COUNT }, (_, i) => {
-    const t = i / (LINE_COUNT - 1)
-    const angle = ((ANGLE_START + t * (ANGLE_END - ANGLE_START)) * Math.PI) / 180
-    const r = radius * (0.85 + 0.3 * (((i * 37) % 7) / 6))
+function buildLines(width: number, height: number, focusX: number, focusY: number) {
+  return START_POINTS.map((p, i) => {
+    const startX = p.x * width
+    const startY = p.y * height
 
-    const startX = focusX + Math.cos(angle) * r
-    const startY = focusY + Math.sin(angle) * r
+    const jitterX = (seededRandom(i + 10) - 0.5) * 30
+    const jitterY = (seededRandom(i + 20) - 0.5) * 20
+    const endX = focusX + jitterX
+    const endY = focusY + jitterY
 
-    const midX = focusX + Math.cos(angle) * r * 0.5
-    const midY = focusY + Math.sin(angle) * r * 0.5
-    const perpAngle = angle + Math.PI / 2
-    const bend = (i % 2 === 0 ? 1 : -1) * (18 + (i % 5) * 5)
-    const controlX = midX + Math.cos(perpAngle) * bend
-    const controlY = midY + Math.sin(perpAngle) * bend
-
-    const jitterX = ((i % 3) - 1) * 14
-    const jitterY = ((i % 4) - 1.5) * 8
+    const dx = endX - startX
+    const dy = endY - startY
+    const len = Math.sqrt(dx * dx + dy * dy) || 1
+    const perpX = -dy / len
+    const perpY = dx / len
+    const bend = (seededRandom(i) - 0.5) * len * 0.35
+    const controlX = (startX + endX) / 2 + perpX * bend
+    const controlY = (startY + endY) / 2 + perpY * bend
 
     return {
-      d: `M ${startX} ${startY} Q ${controlX} ${controlY} ${focusX + jitterX} ${focusY + jitterY}`,
-      delay: `${-(i * 0.5)}s`,
-      duration: `${7 + (i % 5)}s`,
+      startX,
+      startY,
+      endX,
+      endY,
+      d: `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`,
+      delay: `${(0.2 + seededRandom(i + 30) * 0.6).toFixed(2)}s`,
+      duration: `${(3 + seededRandom(i + 40) * 2).toFixed(2)}s`,
     }
   })
 }
 
-function ThreadBackground({ containerRef }: ThreadBackgroundProps) {
+function ThreadBackground({ containerRef, targetRef }: ThreadBackgroundProps) {
   const [dims, setDims] = useState<Dimensions | null>(null)
 
   useEffect(() => {
     const measure = () => {
       const container = containerRef.current
-      if (!container) return
-      const rect = container.getBoundingClientRect()
-      setDims({ width: rect.width, height: rect.height })
+      const target = targetRef.current
+      if (!container || !target) return
+      const containerRect = container.getBoundingClientRect()
+      const targetRect = target.getBoundingClientRect()
+      setDims({
+        width: containerRect.width,
+        height: containerRect.height,
+        focusX: targetRect.left - containerRect.left + targetRect.width / 2,
+        focusY: targetRect.top - containerRect.top,
+      })
     }
 
     measure()
     const observer = new ResizeObserver(measure)
     if (containerRef.current) observer.observe(containerRef.current)
+    if (targetRef.current) observer.observe(targetRef.current)
     window.addEventListener('resize', measure)
     return () => {
       observer.disconnect()
       window.removeEventListener('resize', measure)
     }
-  }, [containerRef])
+  }, [containerRef, targetRef])
 
   if (!dims) return null
 
-  const { width, height } = dims
-  const lines = buildLines(width, height)
+  const { width, height, focusX, focusY } = dims
+  const lines = buildLines(width, height, focusX, focusY)
 
   return (
     <svg
-      className="pointer-events-none absolute inset-0 h-full w-full"
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full"
       viewBox={`0 0 ${width} ${height}`}
       fill="none"
       aria-hidden="true"
     >
       <defs>
-        {lines.map((_, i) => (
+        {lines.map((line, i) => (
           <linearGradient
             key={i}
             id={`thread-gradient-${i}`}
             gradientUnits="userSpaceOnUse"
-            x1="0"
-            y1="0"
-            x2={width}
-            y2={height}
+            x1={line.startX}
+            y1={line.startY}
+            x2={line.endX}
+            y2={line.endY}
           >
-            <stop offset="0%" stopColor="#6C47FF" stopOpacity="0" />
-            <stop offset="100%" stopColor="#6C47FF" stopOpacity="0.16" />
+            <stop offset="0%" stopColor="#6C47FF" stopOpacity="0.07" />
+            <stop offset="100%" stopColor="#6C47FF" stopOpacity="0.3" />
           </linearGradient>
         ))}
-        <filter id="thread-glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="1.5" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
       </defs>
 
-      {/* static base threads, faintly present at rest */}
+      {/* static gradient-faded lines — always visible, the reduced-motion fallback */}
       {lines.map((line, i) => (
-        <path key={`base-${i}`} d={line.d} stroke={`url(#thread-gradient-${i})`} strokeWidth="1" />
+        <path key={`base-${i}`} d={line.d} stroke={`url(#thread-gradient-${i})`} strokeWidth="0.75" />
       ))}
 
-      {/* traveling pulses that give the threads a sense of flow */}
+      {/* short dashes traveling toward the panel, staggered so signals don't pulse in sync */}
       {lines.map((line, i) => (
         <path
-          key={`pulse-${i}`}
+          key={`flow-${i}`}
           className="thread-line"
           d={line.d}
           pathLength={100}
-          stroke="#9C87F5"
-          strokeOpacity="0.5"
-          strokeWidth="1.25"
-          strokeLinecap="round"
-          strokeDasharray="4 96"
-          filter="url(#thread-glow)"
+          stroke={`url(#thread-gradient-${i})`}
+          strokeWidth="1"
+          strokeDasharray="4 6"
           style={{ animationDelay: line.delay, animationDuration: line.duration }}
         />
       ))}

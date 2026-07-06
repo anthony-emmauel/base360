@@ -7,7 +7,8 @@ import TrustBar from './components/TrustBar'
 import ProductPanel from './components/ProductPanel'
 
 function App() {
-  const heroRef = useRef<HTMLDivElement>(null)
+  const bleedRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -17,13 +18,13 @@ function App() {
 
   return (
     <div className="bg-bg">
-      <div ref={heroRef} className="relative overflow-hidden">
-        <ThreadBackground containerRef={heroRef} />
+      <div ref={bleedRef} className="relative overflow-hidden">
+        <ThreadBackground containerRef={bleedRef} targetRef={panelRef} />
         <Nav />
         <Hero />
+        <TrustBar />
+        <ProductPanel ref={panelRef} />
       </div>
-      <TrustBar />
-      <ProductPanel />
       <ProblemSection />
     </div>
   )
