@@ -2,23 +2,25 @@ import { useEffect, useState } from 'react'
 
 interface ThreadBackgroundProps {
   containerRef: React.RefObject<HTMLDivElement | null>
-  targetRef: React.RefObject<HTMLDivElement | null>
 }
 
 interface Dimensions {
   width: number
   height: number
-  focusX: number
-  focusY: number
 }
 
 const LINE_COUNT = 18
 // sweep from left-horizon (185°) up through the top (270°) to right-horizon (355°),
-// covering the dome above the panel the way rays fan out from it
+// covering the dome above the focus point the way rays fan out from it
 const ANGLE_START = 185
 const ANGLE_END = 355
 
-function buildLines(width: number, height: number, focusX: number, focusY: number) {
+function buildLines(width: number, height: number) {
+  const focusX = width / 2
+  // focus sits just below the hero's own bottom edge so the rays read as
+  // converging toward something further down the page, without needing to
+  // literally reach it — this section is clipped, so nothing renders past it
+  const focusY = height * 1.15
   const radius = Math.sqrt(width * width + height * height) * 0.8
 
   return Array.from({ length: LINE_COUNT }, (_, i) => {
@@ -47,39 +49,31 @@ function buildLines(width: number, height: number, focusX: number, focusY: numbe
   })
 }
 
-function ThreadBackground({ containerRef, targetRef }: ThreadBackgroundProps) {
+function ThreadBackground({ containerRef }: ThreadBackgroundProps) {
   const [dims, setDims] = useState<Dimensions | null>(null)
 
   useEffect(() => {
     const measure = () => {
       const container = containerRef.current
-      const target = targetRef.current
-      if (!container || !target) return
-      const containerRect = container.getBoundingClientRect()
-      const targetRect = target.getBoundingClientRect()
-      setDims({
-        width: containerRect.width,
-        height: containerRect.height,
-        focusX: targetRect.left - containerRect.left + targetRect.width / 2,
-        focusY: targetRect.top - containerRect.top,
-      })
+      if (!container) return
+      const rect = container.getBoundingClientRect()
+      setDims({ width: rect.width, height: rect.height })
     }
 
     measure()
     const observer = new ResizeObserver(measure)
     if (containerRef.current) observer.observe(containerRef.current)
-    if (targetRef.current) observer.observe(targetRef.current)
     window.addEventListener('resize', measure)
     return () => {
       observer.disconnect()
       window.removeEventListener('resize', measure)
     }
-  }, [containerRef, targetRef])
+  }, [containerRef])
 
   if (!dims) return null
 
-  const { width, height, focusX, focusY } = dims
-  const lines = buildLines(width, height, focusX, focusY)
+  const { width, height } = dims
+  const lines = buildLines(width, height)
 
   return (
     <svg

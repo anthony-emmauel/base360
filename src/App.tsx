@@ -2,12 +2,12 @@ import { useEffect, useRef } from 'react'
 import ThreadBackground from './components/ThreadBackground'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
+import ProblemSection from './components/ProblemSection'
 import TrustBar from './components/TrustBar'
 import ProductPanel from './components/ProductPanel'
 
 function App() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -16,12 +16,15 @@ function App() {
   }, [])
 
   return (
-    <div ref={containerRef} className="relative min-h-screen overflow-hidden bg-bg">
-      <ThreadBackground containerRef={containerRef} targetRef={panelRef} />
-      <Nav />
-      <Hero />
+    <div className="bg-bg">
+      <div ref={heroRef} className="relative overflow-hidden">
+        <ThreadBackground containerRef={heroRef} />
+        <Nav />
+        <Hero />
+      </div>
+      <ProblemSection />
       <TrustBar />
-      <ProductPanel ref={panelRef} />
+      <ProductPanel />
     </div>
   )
 }
