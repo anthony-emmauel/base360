@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import ThreadBackground from './components/ThreadBackground'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
-import ProblemSection from './components/ProblemSection'
+import WhyUsSection from './components/WhyUsSection'
 import TrustBar from './components/TrustBar'
 import ProductPanel from './components/ProductPanel'
 
@@ -25,7 +25,7 @@ function App() {
         <TrustBar />
         <ProductPanel ref={panelRef} />
       </div>
-      <ProblemSection />
+      <WhyUsSection />
     </div>
   )
 }
