@@ -12,18 +12,40 @@ interface Dimensions {
   focusY: number
 }
 
-// start/control points as fractions of container width/height; endOffset is
-// a small px nudge off the focus point so lines don't all land on one pixel
-const EDGE_POINTS = [
-  { start: [-0.028, 0.067], control: [0.278, 0.244], endOffset: [-10, -10], delay: '0s', duration: '7s' },
-  { start: [1.028, 0.044], control: [0.694, 0.267], endOffset: [10, -30], delay: '-2s', duration: '8s' },
-  { start: [-0.042, 0.511], control: [0.208, 0.622], endOffset: [-30, 10], delay: '-4s', duration: '6.5s' },
-  { start: [1.042, 0.556], control: [0.799, 0.644], endOffset: [30, 20], delay: '-1.5s', duration: '9s' },
-  { start: [0.139, -0.044], control: [0.278, 0.356], endOffset: [-10, -20], delay: '-3s', duration: '7.5s' },
-  { start: [0.875, -0.044], control: [0.729, 0.333], endOffset: [20, -20], delay: '-5s', duration: '8.5s' },
-  { start: [-0.028, 0.911], control: [0.208, 0.8], endOffset: [-40, 30], delay: '-6s', duration: '6s' },
-  { start: [1.042, 0.933], control: [0.819, 0.811], endOffset: [40, 30], delay: '-2.6s', duration: '10s' },
-] as const
+const LINE_COUNT = 18
+// sweep from left-horizon (185°) up through the top (270°) to right-horizon (355°),
+// covering the dome above the panel the way rays fan out from it
+const ANGLE_START = 185
+const ANGLE_END = 355
+
+function buildLines(width: number, height: number, focusX: number, focusY: number) {
+  const radius = Math.sqrt(width * width + height * height) * 0.8
+
+  return Array.from({ length: LINE_COUNT }, (_, i) => {
+    const t = i / (LINE_COUNT - 1)
+    const angle = ((ANGLE_START + t * (ANGLE_END - ANGLE_START)) * Math.PI) / 180
+    const r = radius * (0.85 + 0.3 * (((i * 37) % 7) / 6))
+
+    const startX = focusX + Math.cos(angle) * r
+    const startY = focusY + Math.sin(angle) * r
+
+    const midX = focusX + Math.cos(angle) * r * 0.5
+    const midY = focusY + Math.sin(angle) * r * 0.5
+    const perpAngle = angle + Math.PI / 2
+    const bend = (i % 2 === 0 ? 1 : -1) * (18 + (i % 5) * 5)
+    const controlX = midX + Math.cos(perpAngle) * bend
+    const controlY = midY + Math.sin(perpAngle) * bend
+
+    const jitterX = ((i % 3) - 1) * 14
+    const jitterY = ((i % 4) - 1.5) * 8
+
+    return {
+      d: `M ${startX} ${startY} Q ${controlX} ${controlY} ${focusX + jitterX} ${focusY + jitterY}`,
+      delay: `${-(i * 0.5)}s`,
+      duration: `${7 + (i % 5)}s`,
+    }
+  })
+}
 
 function ThreadBackground({ containerRef, targetRef }: ThreadBackgroundProps) {
   const [dims, setDims] = useState<Dimensions | null>(null)
@@ -57,14 +79,7 @@ function ThreadBackground({ containerRef, targetRef }: ThreadBackgroundProps) {
   if (!dims) return null
 
   const { width, height, focusX, focusY } = dims
-
-  const lines = EDGE_POINTS.map((p) => ({
-    d: `M ${p.start[0] * width} ${p.start[1] * height} Q ${p.control[0] * width} ${p.control[1] * height} ${
-      focusX + p.endOffset[0]
-    } ${focusY + p.endOffset[1]}`,
-    delay: p.delay,
-    duration: p.duration,
-  }))
+  const lines = buildLines(width, height, focusX, focusY)
 
   return (
     <svg
@@ -85,11 +100,11 @@ function ThreadBackground({ containerRef, targetRef }: ThreadBackgroundProps) {
             y2={height}
           >
             <stop offset="0%" stopColor="#6C47FF" stopOpacity="0" />
-            <stop offset="100%" stopColor="#6C47FF" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#6C47FF" stopOpacity="0.16" />
           </linearGradient>
         ))}
         <filter id="thread-glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feGaussianBlur stdDeviation="1.5" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
@@ -110,9 +125,10 @@ function ThreadBackground({ containerRef, targetRef }: ThreadBackgroundProps) {
           d={line.d}
           pathLength={100}
           stroke="#9C87F5"
-          strokeWidth="2"
+          strokeOpacity="0.5"
+          strokeWidth="1.25"
           strokeLinecap="round"
-          strokeDasharray="6 94"
+          strokeDasharray="4 96"
           filter="url(#thread-glow)"
           style={{ animationDelay: line.delay, animationDuration: line.duration }}
         />
