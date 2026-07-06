@@ -35,13 +35,16 @@ body {
 
 @media (prefers-reduced-motion: no-preference) {
   .thread-line {
-    animation: thread-flow 8s linear infinite;
+    animation-name: thread-flow;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-duration: 8s;
   }
 }
 
 @keyframes thread-flow {
   to {
-    stroke-dashoffset: -1000;
+    stroke-dashoffset: -100;
   }
 }
 
