@@ -3,6 +3,8 @@ import ThreadBackground from './components/ThreadBackground'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
 import WhyUsSection from './components/WhyUsSection'
+import HowItWorksSection from './components/HowItWorksSection'
+import PillarsSection from './components/PillarsSection'
 import TrustBar from './components/TrustBar'
 import ProductPanel from './components/ProductPanel'
 
@@ -26,6 +28,8 @@ function App() {
         <ProductPanel ref={panelRef} />
       </div>
       <WhyUsSection />
+      <HowItWorksSection />
+      <PillarsSection />
     </div>
   )
 }

@@ -12,20 +12,33 @@ interface Dimensions {
   focusY: number
 }
 
-// scattered anchor points (fractions of container width/height) around the
-// full perimeter — top-left, left-mid, bottom-left, top-right, etc. — not an
-// evenly-spaced fan, so lines read as independent signals, not a grid
+// Anchor points as fractions of container width/height, deliberately spilling
+// past the 0-1 edges (negative x, x>1, negative y) so lines enter the frame
+// mid-flight rather than originating exactly at its border. Left-to-right
+// ascending order matters: buildLines maps each point's rank in this array
+// directly to its landing position in the convergence band, so lines never
+// swap sides and the fan stays a clean, non-crossing cone.
 const START_POINTS = [
-  { x: 0.06, y: 0.02 },
-  { x: -0.02, y: 0.32 },
-  { x: -0.03, y: 0.6 },
-  { x: 0.14, y: 0.95 },
-  { x: 0.36, y: -0.03 },
-  { x: 0.66, y: -0.03 },
-  { x: 0.93, y: 0.05 },
-  { x: 1.03, y: 0.3 },
-  { x: 1.02, y: 0.64 },
-  { x: 0.84, y: 0.96 },
+  // left sweep
+  { x: -0.09, y: 0.17 },
+  { x: 0, y: 0.08 },
+  { x: 0.03, y: 0 },
+  { x: 0.1, y: -0.04 },
+  { x: 0.17, y: -0.08 },
+  { x: 0.24, y: -0.08 },
+  // center
+  { x: 0.35, y: -0.08 },
+  { x: 0.42, y: -0.08 },
+  { x: 0.5, y: -0.08 },
+  { x: 0.58, y: -0.08 },
+  { x: 0.65, y: -0.08 },
+  // right sweep
+  { x: 0.76, y: -0.08 },
+  { x: 0.83, y: -0.08 },
+  { x: 0.9, y: -0.04 },
+  { x: 0.97, y: 0 },
+  { x: 1.0, y: 0.08 },
+  { x: 1.07, y: 0.17 },
 ]
 
 function seededRandom(seed: number) {
@@ -34,30 +47,44 @@ function seededRandom(seed: number) {
 }
 
 function buildLines(width: number, height: number, focusX: number, focusY: number) {
+  const count = START_POINTS.length
+  const convergeWidth = width * 0.14
+
   return START_POINTS.map((p, i) => {
     const startX = p.x * width
     const startY = p.y * height
 
-    const jitterX = (seededRandom(i + 10) - 0.5) * 30
-    const jitterY = (seededRandom(i + 20) - 0.5) * 20
-    const endX = focusX + jitterX
-    const endY = focusY + jitterY
+    // Rank-preserving landing spot: START_POINTS is already left-to-right,
+    // so the leftmost start lands leftmost in the band and the rightmost
+    // start lands rightmost — lines keep their relative order and form a
+    // cone instead of weaving through each other.
+    const rank = i / (count - 1)
+    const endX = focusX - convergeWidth / 2 + convergeWidth * rank
+    const endY = focusY + (seededRandom(i + 20) - 0.5) * 16
 
     const dx = endX - startX
     const dy = endY - startY
-    const len = Math.sqrt(dx * dx + dy * dy) || 1
-    const perpX = -dy / len
-    const perpY = dx / len
-    const bend = (seededRandom(i) - 0.5) * len * 0.35
-    const controlX = (startX + endX) / 2 + perpX * bend
-    const controlY = (startY + endY) / 2 + perpY * bend
+
+    // Two-control-point cubic: the first control point advances mostly
+    // sideways with little vertical drop, so each line reads as drifting in
+    // in the first half. The second control point sits much further down,
+    // close to the end, so the back half of the line swoops steeply toward
+    // the focus. Per-line variation is kept small so neighboring lines stay
+    // roughly parallel rather than swinging into each other's lane.
+    const c1x = startX + dx * (0.42 + seededRandom(i + 1) * 0.06)
+    const c1y = startY + dy * (0.1 + seededRandom(i + 2) * 0.06)
+    const c2x = startX + dx * (0.76 + seededRandom(i + 3) * 0.05)
+    const c2y = startY + dy * (0.6 + seededRandom(i + 4) * 0.1)
+
+    const strokeWidth = 0.6 + seededRandom(i + 5) * 0.8
 
     return {
       startX,
       startY,
       endX,
       endY,
-      d: `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`,
+      strokeWidth,
+      d: `M ${startX} ${startY} C ${c1x} ${c1y} ${c2x} ${c2y} ${endX} ${endY}`,
       delay: `${(0.2 + seededRandom(i + 30) * 0.6).toFixed(2)}s`,
       duration: `${(3 + seededRandom(i + 40) * 2).toFixed(2)}s`,
     }
@@ -100,7 +127,7 @@ function ThreadBackground({ containerRef, targetRef }: ThreadBackgroundProps) {
 
   return (
     <svg
-      className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+      className="thread-mask pointer-events-none absolute inset-0 z-0 h-full w-full"
       viewBox={`0 0 ${width} ${height}`}
       fill="none"
       aria-hidden="true"
@@ -116,18 +143,18 @@ function ThreadBackground({ containerRef, targetRef }: ThreadBackgroundProps) {
             x2={line.endX}
             y2={line.endY}
           >
-            <stop offset="0%" stopColor="#6C47FF" stopOpacity="0.07" />
-            <stop offset="100%" stopColor="#6C47FF" stopOpacity="0.3" />
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.05" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0.3" />
           </linearGradient>
         ))}
       </defs>
 
       {/* static gradient-faded lines — always visible, the reduced-motion fallback */}
       {lines.map((line, i) => (
-        <path key={`base-${i}`} d={line.d} stroke={`url(#thread-gradient-${i})`} strokeWidth="0.75" />
+        <path key={`base-${i}`} d={line.d} stroke={`url(#thread-gradient-${i})`} strokeWidth={line.strokeWidth} />
       ))}
 
-      {/* short dashes traveling toward the panel, staggered so signals don't pulse in sync */}
+      {/* one soft comet-like streak traveling toward the panel per line, staggered so signals don't pulse in sync */}
       {lines.map((line, i) => (
         <path
           key={`flow-${i}`}
@@ -135,8 +162,9 @@ function ThreadBackground({ containerRef, targetRef }: ThreadBackgroundProps) {
           d={line.d}
           pathLength={100}
           stroke={`url(#thread-gradient-${i})`}
-          strokeWidth="1"
-          strokeDasharray="4 6"
+          strokeWidth={line.strokeWidth + 0.5}
+          strokeLinecap="round"
+          strokeDasharray="22 78"
           style={{ animationDelay: line.delay, animationDuration: line.duration }}
         />
       ))}

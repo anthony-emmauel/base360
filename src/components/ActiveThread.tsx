@@ -34,52 +34,97 @@ export function ThreadHeader() {
   )
 }
 
+// The individual pieces below are exported on their own so other surfaces
+// (e.g. HowItWorksSection) can reuse the real thread UI directly instead of
+// re-describing it — ThreadMessages just composes them in sequence.
+
+export function CommentBubble() {
+  return (
+    <ThreadMessage author="Jordan Miller" meta="commented on post">
+      <div className="inline-block rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-text-primary">
+        Is this in stock?
+      </div>
+    </ThreadMessage>
+  )
+}
+
+export function ReplyBubble() {
+  return (
+    <ThreadMessage author="Base360 AI" meta="replied to comment" isAI>
+      <div className="inline-block rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-text-primary">
+        Yes it is! I can send you a direct link if you'd like?
+      </div>
+    </ThreadMessage>
+  )
+}
+
+export function SwitchDivider() {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="h-px flex-1 bg-border" />
+      <span className="shrink-0 text-[10px] font-medium tracking-wide text-text-muted">
+        SWITCHED TO INSTAGRAM DM
+      </span>
+      <span className="h-px flex-1 bg-border" />
+    </div>
+  )
+}
+
+export function DmReplyBubble() {
+  return (
+    <ThreadMessage author="Jordan Miller" meta="sent a message">
+      <div className="inline-block rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm text-text-primary">Yes please</div>
+    </ThreadMessage>
+  )
+}
+
+export function LinkReplyBubble() {
+  return (
+    <ThreadMessage author="Base360 AI" meta="sent a message" isAI>
+      <div className="inline-block rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm text-text-primary">
+        Here's the link to purchase:{' '}
+        <a href="#" className="text-sky-400 underline underline-offset-2 hover:text-sky-300">
+          base360.co/c/8f92k
+        </a>
+        . Let me know if you need help.
+      </div>
+    </ThreadMessage>
+  )
+}
+
+// `monochrome` swaps the one deliberate accent (Thread Violet) for a neutral
+// fill — used by sections like HowItWorksSection that keep this element but
+// stay purple-free.
+export function HotTagPill({ monochrome }: { monochrome?: boolean } = {}) {
+  return (
+    <span
+      className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-medium tracking-wide text-white ${
+        monochrome ? 'border border-border bg-white/10' : 'bg-accent'
+      }`}
+    >
+      <Zap size={12} />
+      LEAD AUTOMATICALLY TAGGED AS HOT
+    </span>
+  )
+}
+
 export function ThreadMessages() {
   return (
     <div className="px-6 py-6">
       <p className="mb-6 text-center text-xs text-text-muted">Today, 10:42 AM</p>
 
-      <ThreadMessage author="Jordan Miller" meta="commented on post">
-        <div className="inline-block rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-text-primary">
-          Is this in stock?
-        </div>
-      </ThreadMessage>
+      <CommentBubble />
+      <ReplyBubble />
 
-      <ThreadMessage author="Base360 AI" meta="replied to comment" isAI>
-        <div className="inline-block rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-text-primary">
-          Yes it is! I can send you a direct link if you'd like?
-        </div>
-      </ThreadMessage>
-
-      <div className="my-6 flex items-center gap-3">
-        <span className="h-px flex-1 bg-border" />
-        <span className="shrink-0 text-[10px] font-medium tracking-wide text-text-muted">
-          SWITCHED TO INSTAGRAM DM
-        </span>
-        <span className="h-px flex-1 bg-border" />
+      <div className="my-6">
+        <SwitchDivider />
       </div>
 
-      <ThreadMessage author="Jordan Miller" meta="sent a message">
-        <div className="inline-block rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm text-text-primary">
-          Yes please
-        </div>
-      </ThreadMessage>
-
-      <ThreadMessage author="Base360 AI" meta="sent a message" isAI>
-        <div className="inline-block rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm text-text-primary">
-          Here's the link to purchase:{' '}
-          <a href="#" className="text-sky-400 underline underline-offset-2 hover:text-sky-300">
-            base360.co/c/8f92k
-          </a>
-          . Let me know if you need help.
-        </div>
-      </ThreadMessage>
+      <DmReplyBubble />
+      <LinkReplyBubble />
 
       <div className="mt-6 flex justify-center">
-        <span className="flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-[11px] font-medium tracking-wide text-white">
-          <Zap size={12} />
-          LEAD AUTOMATICALLY TAGGED AS HOT
-        </span>
+        <HotTagPill />
       </div>
     </div>
   )
@@ -124,7 +169,7 @@ function ActiveThread() {
   )
 }
 
-function ThreadMessage({
+export function ThreadMessage({
   author,
   meta,
   isAI,
