@@ -5,6 +5,9 @@ import Hero from './components/Hero'
 import WhyUsSection from './components/WhyUsSection'
 import HowItWorksSection from './components/HowItWorksSection'
 import PillarsSection from './components/PillarsSection'
+import SocialProofSection from './components/SocialProofSection'
+import FaqSection from './components/FaqSection'
+import Footer from './components/Footer'
 import TrustBar from './components/TrustBar'
 import ProductPanel from './components/ProductPanel'
 
@@ -19,17 +22,38 @@ function App() {
   }, [])
 
   return (
-    <div className="bg-bg">
-      <div ref={bleedRef} className="relative overflow-hidden">
+    <div>
+      <div ref={bleedRef} className="theme-light relative overflow-hidden bg-bg">
         <ThreadBackground containerRef={bleedRef} targetRef={panelRef} />
         <Nav />
         <Hero />
         <TrustBar />
-        <ProductPanel ref={panelRef} />
+        {/* the dark dashboard sits on the light hero (top) with its base on a
+            black band (bottom) that carries into the dark WhyUs section; the
+            threads converge onto its top edge since it lives in this container */}
+        <div className="relative">
+          <div aria-hidden className="theme-dark pointer-events-none absolute inset-x-0 bottom-0 top-[384px] bg-bg" />
+          <ProductPanel ref={panelRef} />
+        </div>
       </div>
-      <WhyUsSection />
-      <HowItWorksSection />
-      <PillarsSection />
+      <div className="theme-dark bg-bg">
+        <WhyUsSection />
+      </div>
+      <div className="theme-light bg-bg">
+        <HowItWorksSection />
+      </div>
+      <div className="theme-dark bg-bg">
+        <PillarsSection />
+      </div>
+      <div className="theme-light bg-bg">
+        <SocialProofSection />
+      </div>
+      <div className="theme-dark bg-bg">
+        <FaqSection />
+      </div>
+      <div className="theme-dark bg-bg">
+        <Footer />
+      </div>
     </div>
   )
 }

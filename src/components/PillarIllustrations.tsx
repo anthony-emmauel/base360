@@ -2,12 +2,12 @@
 // thin monochrome figure style used on dev-tool marketing sites, built from
 // scratch (no imagery assets) using plain SVG polygons so the stroke color
 // stays bound to the page's own accent-thread token family.
-const STROKE = 'rgba(255, 255, 255, 0.35)'
-const STROKE_DIM = 'rgba(255, 255, 255, 0.18)'
+const STROKE = 'rgba(255, 90, 31, 0.65)'
+const STROKE_DIM = 'rgba(255, 90, 31, 0.32)'
 
 function FigCaption({ label }: { label: string }) {
   return (
-    <span className="absolute left-8 top-8 font-mono text-[10px] uppercase tracking-[0.15em] text-white/30">
+    <span className="absolute left-8 top-8 font-mono text-[10px] uppercase tracking-[0.15em] text-accent/50">
       {label}
     </span>
   )
@@ -17,7 +17,7 @@ function DotGrid({ x, y }: { x: number; y: number }) {
   const dots: React.ReactNode[] = []
   for (let row = 0; row < 3; row++) {
     for (let col = 0; col < 3; col++) {
-      dots.push(<circle key={`${row}-${col}`} cx={x + col * 6} cy={y + row * 6} r={1} fill="rgba(255, 255, 255, 0.3)" />)
+      dots.push(<circle key={`${row}-${col}`} cx={x + col * 6} cy={y + row * 6} r={1} fill="rgba(255, 90, 31, 0.5)" />)
     }
   }
   return <>{dots}</>

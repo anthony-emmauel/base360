@@ -151,7 +151,7 @@ function ActiveThread() {
           <Smile size={16} className="shrink-0 text-text-muted" />
           <button
             type="button"
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs text-text-primary transition-colors hover:border-white/20"
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs text-text-primary transition-colors hover:border-text-muted"
           >
             Send
             <Send size={12} />

@@ -3,30 +3,63 @@
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
-  --color-bg: #0a0a0a;
-  --color-surface: #131316;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #a0a0a0;
-  --color-text-muted: #6b6b6b;
-  --color-accent: #6c47ff;
-  --color-accent-hover: #9c87f5;
-  --color-accent-thread: #6c47ff;
+  /* Ember orange — the one brand accent, constant across light & dark. */
+  --color-accent: #ff5a1f;
+  --color-accent-hover: #ff7a45;
 }
 
-:root {
+/* Semantic color tokens resolve to per-theme CSS vars that .theme-light /
+   .theme-dark override, so a section flips light or dark just by its wrapper
+   class while every `bg-bg` / `text-text-primary` / `border-border` utility
+   follows along. `inline` makes the utilities emit `var(--bg)` directly so
+   the cascade reaches them. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-overlay: var(--overlay);
+  --color-overlay-strong: var(--overlay-strong);
+}
+
+:root,
+.theme-dark {
   color-scheme: dark;
+  --bg: #0a0a0a;
+  --surface: #161616;
+  --border: rgba(255, 255, 255, 0.1);
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --text-muted: #6b6b6b;
+  --overlay: rgba(255, 255, 255, 0.05);
+  --overlay-strong: rgba(255, 255, 255, 0.1);
+}
+
+.theme-light {
+  color-scheme: light;
+  /* lightest shade of the Ember orange rather than a plain white */
+  --bg: #fff8f4;
+  --surface: #fbeee7;
+  --border: rgba(40, 20, 10, 0.1);
+  --text-primary: #1a0f08;
+  --text-secondary: #6b5a50;
+  --text-muted: #b39d90;
+  --overlay: rgba(40, 20, 10, 0.04);
+  --overlay-strong: rgba(40, 20, 10, 0.08);
 }
 
 body {
   margin: 0;
-  background: var(--color-bg);
-  color: var(--color-text-primary);
+  background: #0a0a0a;
+  color: var(--text-primary);
   font-family: var(--font-sans);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-wrap: pretty;
 }
 
 .thread-line {
@@ -34,8 +67,8 @@ body {
 }
 
 .thread-mask {
-  mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+  mask-image: radial-gradient(130% 110% at 50% 55%, black 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(130% 110% at 50% 55%, black 60%, transparent 100%);
 }
 
 @media (prefers-reduced-motion: no-preference) {

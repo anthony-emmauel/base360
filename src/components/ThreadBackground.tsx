@@ -143,8 +143,8 @@ function ThreadBackground({ containerRef, targetRef }: ThreadBackgroundProps) {
             x2={line.endX}
             y2={line.endY}
           >
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.05" />
-            <stop offset="100%" stopColor="#ffffff" stopOpacity="0.3" />
+            <stop offset="0%" stopColor="#ff5a1f" stopOpacity="0.1" />
+            <stop offset="100%" stopColor="#ff5a1f" stopOpacity="0.55" />
           </linearGradient>
         ))}
       </defs>

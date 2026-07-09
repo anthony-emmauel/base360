@@ -20,7 +20,7 @@ function Nav() {
       <div className="justify-self-end">
         <a
           href="#get-started"
-          className="rounded-full border border-border px-4 py-2 text-sm text-text-primary transition-colors hover:border-white/20"
+          className="rounded-full border border-border px-4 py-2 text-sm text-text-primary transition-[border-color,scale] hover:border-text-muted active:scale-[0.96]"
         >
           Get started free
         </a>

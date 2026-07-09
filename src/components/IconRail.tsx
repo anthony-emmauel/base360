@@ -43,12 +43,12 @@ function IconRail() {
             aria-label={label}
             className={`relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
               active
-                ? 'bg-white/10 text-text-primary'
+                ? 'bg-overlay-strong text-text-primary'
                 : 'text-text-muted hover:text-text-secondary'
             }`}
           >
             {active && (
-              <span className="absolute -left-[9px] top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-white" />
+              <span className="absolute -left-[9px] top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-accent" />
             )}
             <Icon size={18} />
           </button>

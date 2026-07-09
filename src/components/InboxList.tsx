@@ -17,7 +17,7 @@ function InboxList() {
           <div
             key={c.id}
             className={`flex cursor-pointer gap-3 border-b border-border/60 px-4 py-3 text-left transition-colors ${
-              c.active ? 'border-l-2 border-l-white bg-white/[0.04]' : 'border-l-2 border-l-transparent hover:bg-white/[0.03]'
+              c.active ? 'border-l-2 border-l-accent bg-overlay' : 'border-l-2 border-l-transparent hover:bg-overlay'
             }`}
           >
             <div

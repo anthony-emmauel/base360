@@ -127,7 +127,7 @@ function HowItWorksSection() {
   }, [])
 
   return (
-    <section className="relative z-10 mx-auto max-w-6xl px-6 py-20 sm:py-28">
+    <section className="relative z-10 mx-auto max-w-6xl px-6 pt-20 pb-0 sm:pt-28">
       <div className="grid items-start gap-8 md:grid-cols-2 md:gap-16">
         <h2 className="text-balance text-[40px] font-medium leading-[1.1] tracking-tight text-text-primary sm:text-[48px]">
           From first comment to closed customer
@@ -146,7 +146,7 @@ function HowItWorksSection() {
 
         <div className="grid md:grid-cols-2 md:gap-20">
           <div className="sticky top-0 flex h-screen items-center justify-center px-10">
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-border">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl outline outline-1 -outline-offset-1 outline-black/10">
               {STEPS.map((step, i) => (
                 <img
                   key={step.id}
@@ -182,7 +182,7 @@ function HowItWorksSection() {
       <div className="mt-12 space-y-16 md:hidden">
         {STEPS.map((step) => (
           <div key={step.id}>
-            <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border">
+            <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl outline outline-1 -outline-offset-1 outline-black/10">
               <img src={step.image} alt={step.imageAlt} loading="lazy" className="h-full w-full object-cover" />
             </div>
             <div className="mt-6">

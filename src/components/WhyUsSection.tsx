@@ -1,6 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { ArrowUpRight } from 'lucide-react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { StackIllustration, ClusterIllustration, FanIllustration } from './PillarIllustrations'
+
+gsap.registerPlugin(ScrollTrigger)
 
 interface Feature {
   title: string
@@ -93,7 +97,7 @@ function WhyUsCard({ label, headline, features, cta, Illustration, reversed }: C
 
   return (
     <div
-      className={`flex flex-col overflow-hidden rounded-xl border border-border ${
+      className={`js-whyus-card flex flex-col overflow-hidden rounded-xl border border-border ${
         reversed ? 'md:flex-row-reverse' : 'md:flex-row'
       }`}
     >
@@ -117,7 +121,7 @@ function WhyUsCard({ label, headline, features, cta, Illustration, reversed }: C
                 <button
                   type="button"
                   aria-label={`${feature.title} — learn more`}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-text-secondary transition-colors hover:border-white/20 hover:text-text-primary"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-text-secondary transition-colors hover:border-text-muted hover:text-text-primary"
                 >
                   <ArrowUpRight size={14} />
                 </button>
@@ -128,7 +132,7 @@ function WhyUsCard({ label, headline, features, cta, Illustration, reversed }: C
 
         <a
           href="#get-started"
-          className="mt-10 block rounded-full border border-border py-3 text-center text-sm font-medium text-text-primary transition-colors hover:border-white/20"
+          className="mt-10 block rounded-full border border-border py-3 text-center text-sm font-medium text-text-primary transition-colors hover:border-text-muted"
         >
           {cta}
         </a>
@@ -144,8 +148,25 @@ function WhyUsCard({ label, headline, features, cta, Illustration, reversed }: C
 }
 
 function WhyUsSection() {
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useLayoutEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const ctx = gsap.context(() => {
+      gsap.from('.js-whyus-card', {
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 72%', once: true },
+        y: 64,
+        opacity: 0,
+        duration: 0.9,
+        stagger: 0.15,
+        ease: 'power3.out',
+      })
+    }, sectionRef)
+    return () => ctx.revert()
+  }, [])
+
   return (
-    <section className="relative z-10 mx-auto max-w-6xl px-6 py-20 sm:py-28">
+    <section ref={sectionRef} className="relative z-10 mx-auto max-w-6xl px-6 py-20 sm:py-28">
       <h2 className="text-balance text-center text-[32px] font-medium leading-tight text-text-primary sm:text-4xl">
         A better way to turn comments into customers.
       </h2>

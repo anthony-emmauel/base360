@@ -16,7 +16,7 @@ function Hero() {
         <a
           id="get-started"
           href="#get-started"
-          className="rounded-full bg-accent px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="rounded-full bg-accent px-6 py-3 text-sm font-medium text-white transition-[opacity,scale] hover:opacity-90 active:scale-[0.96]"
         >
           Get started free
         </a>
