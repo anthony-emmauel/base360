@@ -32,7 +32,7 @@ function App() {
             black band (bottom) that carries into the dark WhyUs section; the
             threads converge onto its top edge since it lives in this container */}
         <div className="relative">
-          <div aria-hidden className="theme-dark pointer-events-none absolute inset-x-0 bottom-0 top-[384px] bg-bg" />
+          <div aria-hidden className="theme-dark pointer-events-none absolute inset-x-0 bottom-0 top-[60%] bg-bg" />
           <ProductPanel ref={panelRef} />
         </div>
       </div>

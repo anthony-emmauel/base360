@@ -3,7 +3,7 @@ import { CONVERSATIONS } from './inboxData'
 
 function InboxList() {
   return (
-    <div className="flex w-[300px] shrink-0 flex-col border-r border-border">
+    <div className="hidden w-full shrink-0 flex-col border-r border-border md:flex md:w-[300px]">
       <div className="flex items-center justify-between border-b border-border px-4 py-4">
         <h3 className="text-[15px] font-medium text-text-primary">Inbox</h3>
         <div className="flex items-center gap-3 text-text-muted">

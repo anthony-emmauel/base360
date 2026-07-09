@@ -34,7 +34,7 @@ const BOTTOM_ICONS = [
 
 function IconRail() {
   return (
-    <div className="flex w-14 shrink-0 flex-col items-center justify-between border-r border-border py-4">
+    <div className="hidden w-14 shrink-0 flex-col items-center justify-between border-r border-border py-4 sm:flex">
       <div className="flex flex-col items-center gap-1">
         {TOP_ICONS.map(({ icon: Icon, label, active }) => (
           <button

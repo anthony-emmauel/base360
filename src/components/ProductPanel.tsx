@@ -35,7 +35,7 @@ function ProductPanel({ ref }: { ref?: React.Ref<HTMLDivElement> }) {
     <div ref={ref} className="relative z-10 mx-auto w-[90vw] max-w-[1400px] px-6 pt-0 pb-16 sm:pb-20">
       <div
         ref={rowRef}
-        className="theme-dark relative h-[640px] overflow-hidden rounded-2xl border border-border shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)]"
+        className="theme-dark relative h-[520px] overflow-hidden rounded-2xl border border-border shadow-[0_30px_80px_-20px_rgba(0,0,0,0.5)] sm:h-[600px] md:h-[640px]"
         style={{ ['--bg' as string]: '#171717', ['--surface' as string]: '#212121' } as React.CSSProperties}
       >
         <Dashboard />

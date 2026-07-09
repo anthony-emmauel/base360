@@ -2,20 +2,20 @@ import { UserRound, Paperclip, Smile, Send, Zap } from 'lucide-react'
 
 export function ThreadHeader() {
   return (
-    <div className="flex items-center justify-between border-b border-border px-6 py-4">
-      <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-500 text-[12px] font-medium text-black/80">
+    <div className="flex items-center justify-between border-b border-border px-4 py-4 sm:px-6">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-500 text-[12px] font-medium text-black/80">
           JM
         </div>
-        <div>
+        <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-[15px] font-medium text-text-primary">Jordan Miller</span>
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <span className="truncate text-[15px] font-medium text-text-primary">Jordan Miller</span>
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
           </div>
-          <p className="text-xs text-text-muted">@jordanm_styles · Customer since Aug 2023</p>
+          <p className="truncate text-xs text-text-muted">@jordanm_styles · Customer since Aug 2023</p>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="hidden items-center gap-2 sm:flex">
         <button
           type="button"
           className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-text-secondary transition-colors hover:text-text-primary"
@@ -110,7 +110,7 @@ export function HotTagPill({ monochrome }: { monochrome?: boolean } = {}) {
 
 export function ThreadMessages() {
   return (
-    <div className="px-6 py-6">
+    <div className="px-4 py-6 sm:px-6">
       <p className="mb-6 text-center text-xs text-text-muted">Today, 10:42 AM</p>
 
       <CommentBubble />
@@ -140,7 +140,7 @@ function ActiveThread() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-border px-6 py-4">
+      <div className="border-t border-border px-4 py-4 sm:px-6">
         <div className="flex items-center gap-2 rounded-full border border-border bg-white/[0.02] px-4 py-2.5">
           <input
             type="text"
@@ -159,7 +159,7 @@ function ActiveThread() {
         </div>
         <div className="mt-2 flex items-center justify-between text-[11px] text-text-muted">
           <span className="tracking-wide">REPLYING IN INSTAGRAM DM</span>
-          <span>
+          <span className="hidden sm:block">
             Press <kbd className="rounded border border-border px-1">⌘</kbd> +{' '}
             <kbd className="rounded border border-border px-1">Enter</kbd> to send
           </span>
