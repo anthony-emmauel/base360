@@ -1,5 +1,7 @@
 # Base360 — Hero Page
 
+**Live site:** https://visionary-pegasus-d7362a.netlify.app/
+
 Landing page hero section for Base360, built as a take-home assessment for Flex & Base360.
 
 Base360 unifies every conversation across social/DM/SMS/email, automates the busywork, and turns leads into sales. This page recreates the marketing hero: headline, CTA, trust bar, and a full-scale product UI panel showing the inbox experience.
